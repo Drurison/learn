@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -16,16 +15,16 @@ type Generator interface {
 // Your custom generator implementation
 type CustomGenerator struct {
 	// Store any parameters here...
-	numOfShips int
+	//var numOfShips int
+
 }
 
 // Creates a new instance of your generator.
 // parameters should be sent to this function and stored in the
 // CustomGenerator instance.
-func NewCustomGenerator(numOfShips int) *CustomGenerator {
+func NewCustomGenerator() *CustomGenerator {
 	return &CustomGenerator{
 		// Init params here...
-		numOfShips: numOfShips,
 	}
 }
 
@@ -42,20 +41,12 @@ func NewCustomGenerator(numOfShips int) *CustomGenerator {
 func (g *CustomGenerator) Generate(height, width int) ([]bool, error) {
 	rand.Seed(time.Now().UnixNano())
 	// Your generation code goes here...
-	var size = height * width
-	var grid []bool = make([]bool, size)
-	if g.numOfShips > size {
-		return nil, errors.New("Too many ships for grid, sadge --says Joe")
-
-	}
-	for existingShips := 0; existingShips < g.numOfShips; {
-		position := rand.Intn(size)
-		if !grid[position] {
-			grid[position] = true
-			existingShips++
-		}
-	}
-
+	var grid []bool = make([]bool, height*width)
+	var size = len(grid)
+	for i := 0; i < size; i++ {
+		grid[i] = rand.Intn(2) == 1
+		
+	} 
 	return grid, nil
 }
 
@@ -64,11 +55,11 @@ func (g *CustomGenerator) Generate(height, width int) ([]bool, error) {
 func printGrid(grid []bool, height, width int) {
 
 	var rows []string
-	var actualSize = len(grid)
+	var size = len(grid)
 	var expectedSize = height * width
 
-	if actualSize != expectedSize {
-		panic(fmt.Sprintf("You fucked up\nExpected grid size = (%d*%d) = %d, Received %d", height, width, expectedSize, actualSize))
+	if size != expectedSize {
+		panic(fmt.Sprintf("You fucked up\nExpected grid size = (%d*%d) = %d, Received %d", height, width, expectedSize, size))
 	}
 
 	for y := 0; y < height; y++ {
@@ -76,7 +67,7 @@ func printGrid(grid []bool, height, width int) {
 		for x := 0; x < width; x++ {
 			i := width*y + x
 			if grid[i] {
-				row += "S "
+				row += "X "
 			} else {
 				row += "- "
 			}
@@ -89,12 +80,12 @@ func printGrid(grid []bool, height, width int) {
 
 func main() {
 
-	height, width := 3, 3
-	grid, err := NewCustomGenerator(5).Generate(height, width)
+	height, width := 10, 10
+
+	grid, err := NewCustomGenerator().Generate(height, width)
 	if err != nil {
 		panic(err)
 	}
 
 	printGrid(grid, height, width)
-
 }
